@@ -1,0 +1,27 @@
+<ion-view>
+
+    <ion-header-bar align-title="left"  class="bar-dark"  >
+
+          <div style="valign:middle;">
+          <img height="110px;" width="113px;" src= "img/headerlog3.png">
+              <div class="title"><a style=" font-size: x-large;">文理学院附属医院</a><br><a style="">掌上医院应用平台</a></div>
+          </div>
+
+
+
+      </ion-header-bar>
+
+
+        <ion-content has-header="true" padding="true" scroll="true" ng-controller="mainController">
+        <div class="row unlimited-items list">
+          <a class="col item" ng-click="showapp(item)" style="text-align:center;" ng-repeat="item in items">
+
+            <img ng-src="{{item.src}}" width="100px" height="100px">
+            <div class="bar-royal">{{item.name}}</div>
+            <hr/>
+
+          </a>
+        </div>
+</ion-content>
+
+</ion-view>

@@ -23,6 +23,17 @@ var ionicApp=angular.module('starter', ['ionic'])
       StatusBar.styleDefault();
     }
   });
+})
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+
+    .state('app', {
+                url: '/index',
+                templateUrl:'templates/index.html',
+                //templateUrl: localStorage.serverurl+'hospital/'+'templates/index.html?t='+(new Date().getTime()),
+                controller: 'mainController'
+            })
+    $urlRouterProvider.otherwise('/index');
 });
 ionicApp.controller("mainController", function($scope,$ionicPopup) {
 
