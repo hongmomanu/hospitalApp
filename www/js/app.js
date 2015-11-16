@@ -35,7 +35,7 @@ var ionicApp=angular.module('starter', ['ionic'])
             })
     $urlRouterProvider.otherwise('/index');
 });
-ionicApp.controller("mainController", function($scope,$ionicPopup) {
+ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$ionicLoading) {
 
   /**
   $scope.images = [
@@ -50,18 +50,178 @@ ionicApp.controller("mainController", function($scope,$ionicPopup) {
 
 
    $scope.items = [
-     {name:'e医通',src:'img/eapp.jpg',appid:'com.ionicframework.eapp315343',appurl:"http://111.1.76.108:3000/files/e.apk"},
-     {name:'预约挂号',src:'img/date.jpg',appid:'com.mycompany.AffiliatedHospital',appurl:"http://111.1.76.108:3000/files/hospital.apk"},
-      {name:'移动急救',src:'img/care.jpg',appid:'com.ionicframework.mobilecare848832',appurl:"http://111.1.76.108:3005/app/app.apk"},
-      {name:'办公OA',src:'img/oa.jpg',appid:'com.ionicframework.hospitaloaapp370962',appurl:"http://111.1.76.108:3007/app/oa.apk"},
-     {name:'移动点餐',src:'img/lunch.jpg',appid:'com.test.test370962',appurl:"http://111.1.76.108:3007/app/lunch.apk"},
-      {name:'移动查房',src:'img/check.jpg',appid:'com.test.test470962',appurl:"http://111.1.76.108:3007/app/check.apk"}
+     {name:'e医通',src:(localStorage.serverurl+'hospital/img/eapp.jpg'),appid:'com.ionicframework.eapp315343',appurl:"http://111.1.76.108:3000/files/e.apk"},
+     {name:'预约挂号',src:(localStorage.serverurl+'hospital/img/date.jpg'),appid:'com.mycompany.AffiliatedHospital',appurl:"http://111.1.76.108:3000/files/hospital.apk"},
+      {name:'移动急救',src:(localStorage.serverurl+'hospital/img/care.jpg'),appid:'com.ionicframework.mobilecare848832',appurl:"http://111.1.76.108:3005/app/app.apk"},
+      {name:'办公OA',src:(localStorage.serverurl+'hospital/img/oa.jpg'),appid:'com.ionicframework.hospitaloaapp370962',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/oa.apk"},
+     {name:'移动点餐',src:(localStorage.serverurl+'hospital/img/lunch.jpg'),appid:'com.test.test370962',appurl:"http://111.1.76.108:3007/app/lunch.apk"},
+      {name:'移动查房',src:(localStorage.serverurl+'hospital/img/check.jpg'),appid:'com.test.test470962',appurl:"http://111.1.76.108:3007/app/check.apk"},
+     {name:'软件分享',src:(localStorage.serverurl+'hospital/img/barcode.jpg'),type:'barcode'}
 
   ];
+
+  $scope.closebarcodemodal=function(){
+     $scope.barcodemodal.remove();
+  };
+
+  $scope.progress=0;
+
+
+
+  $scope.downloadstart=function (url) {
+    try {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
+            fileSystem.root.getFile("app.apk", {
+                create: true,
+                exclusive: false
+            }, function(entry) {
+                var storepath = entry.toInternalURL();
+                //alert(storepath);
+                $scope.downloadFile(storepath, url);//開始下載文件
+            }, function() {
+                console.log('创建文件夹失败');
+            });
+        }, function() {
+            console.log('创建文件夹失败');
+        });
+    } catch (e) {
+        alert(e.name + ":" + e.message);
+    }
+}
+/**
+ * 下載文件，
+ *
+ * @param  {[string]} storefilepath   [下載的文件存儲的路徑]
+ * @param  {[string]} downloadfileurl [需要下載文件的URL 或者名稱]
+ * @return {[type]}                 [description]
+ */
+$scope.downloadFile=function (storefilepath, downloadfileurl) {
+    try {
+        var ft = new FileTransfer();
+        ft.onprogress = function(progressEvent) {
+               //alert(11);
+              if (progressEvent.lengthComputable) {
+
+                $scope.progress= (progressEvent.loaded / progressEvent.total*100).toFixed(1);
+                 $ionicLoading.show({
+                    template: '下载中...'+$scope.progress +'%'
+                });
+
+              } else {
+                alert("can not progress")
+              }
+          };
+        var uri = encodeURI(downloadfileurl);
+        var fileURL = storefilepath;
+        ft.download(
+            uri,
+            fileURL,
+            function(entry) {
+                
+                //alert("download complete: " + entry.toInternalURL());
+
+
+
+               /**
+                var open = cordova.plugins.disusered.open;
+
+                      function success() {
+
+                        $ionicLoading.hide();
+
+                      }
+
+                      function error(code) {
+                        $ionicLoading.hide();
+                        if (code === 1) {
+                           $ionicPopup.alert({
+                             title: '错误!',
+                             template: '未找到文件'
+                           });
+                        } else {
+                           $ionicPopup.alert({
+                             title: '错误!',
+                             template: '安装失败'
+                           });
+                        }
+                      }
+
+                 open(entry.toInternalURL(), success, error);**/
+
+
+               $ionicLoading.hide();
+
+              cordova.plugins.fileOpener2.open(
+                            entry.toInternalURL(),
+                            'application/vnd.android.package-archive',
+                            {
+                              error : function(e) {
+                                  alert('Error status:');
+                              },
+                              success : function () {
+                                  //alert('file opened successfully');
+                              }
+                          }
+                );
+
+            },
+            function(error) {
+                alert("download error source " + error.source);
+               
+            },
+            false, {
+                headers: {
+                    "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+                }
+            }
+        );
+
+
+    } catch (e) {
+        alert(e.name + ":" + e.message);
+    }
+};
+
+  $scope.tempdownload=function(downloadfileurl){
+    $scope.downloadurl=downloadfileurl;
+
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 50 * 1024 * 1024 , $scope.gotFS, function(){alert("error")});
+
+
+  };
+  $scope.downloadurl="";
+  $scope.gotFS=function (fileSystem) {
+                   resolveLocalFileSystemURL(cordova.file.externalDataDirectory,  $scope.gotDir);
+            };
+
+ $scope.gotDir=function (dirEntry) {
+                dirEntry.getFile("app.apk", {create: true, exclusive: false}, $scope.gotFile);
+  };
+
+  $scope.gotFile=function (fileEntry) {
+                var localPath = fileEntry.fullPath;
+                var localUrl = fileEntry.toURL();
+
+                $scope.downloadFile(localUrl,$scope.downloadurl);
+
+  }
 
 
   $scope.showapp=function(item){
     console.log(item);
+
+    if(item.type=='barcode'){
+
+      $ionicModal.fromTemplateUrl(localStorage.serverurl+'hospital/templates/barcodemodal.html' , {
+          scope: $scope
+      }).then(function(modal) {
+              $scope.barcodemodal = modal;
+              $scope.barcodemodal.show();
+              $("#scanbarcode").qrcode({text:localStorage.serverurl+'hospital/app.apk',width:200,height:200});
+      });
+
+
+    }else{
     navigator.startApp.check(item.appid, function(message) { /* success */
 
       navigator.startApp.start(item.appid, function(message) {  /* success */
@@ -77,12 +237,75 @@ ionicApp.controller("mainController", function($scope,$ionicPopup) {
 
     },
     function(error) { /* error */
-       $ionicPopup.alert({
-           title: '提示',
-           template: '应用未安装'
-         });
+
+
+
+
+
+      var confirmPopup = $ionicPopup.confirm({
+       title: '提示',
+       template: '应用未安装,确定安装么?'
+      });
+   confirmPopup.then(function(res) {
+     if(res) {
+
+        //alert(cordova.file.dataDirectory);
+
+        /**$ionicLoading.show({
+            template: '下载中...'+$scope.progress
+        });
+
+
+       var open = cordova.plugins.disusered.open;
+
+                      function success() {
+
+                        $ionicLoading.hide();
+
+                      }
+
+                      function error(code) {
+                        $ionicLoading.hide();
+                        if (code === 1) {
+                           $ionicPopup.alert({
+                             title: '错误!',
+                             template: '未找到文件'
+                           });
+                        } else {
+                           $ionicPopup.alert({
+                             title: '错误!',
+                             template: '安装失败'
+                           });
+                        }
+                      }
+
+      open(item.appurl, success, error);**/
+
+        //$scope.downloadstart(item.appurl);
+
+       $scope.tempdownload(item.appurl);
+
+
+
+
+
+
+
+
+
+
+
+     } else {
+
+     }
+   });
+
+
 
     });
+
+    }
+
 
 
   };

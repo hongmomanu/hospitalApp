@@ -23,12 +23,13 @@
                     window.location='./main.html';
                 },
                 error:function(data){
+                    alert(data);
                     var theResponse = window.prompt("服务地址",localStorage.serverurl);
                     if(theResponse)localStorage.serverurl=theResponse;
                     else  localStorage.serverurl="http://111.1.76.108:3007/";
                     window.location.href="";
                 },
-                timeout: 2000 //in milliseconds
+                timeout: 5000 //in milliseconds
             });
 
         }
