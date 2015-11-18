@@ -55,7 +55,7 @@ ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$i
       {name:'移动急救',src:(localStorage.serverurl+'hospital/img/care.jpg'),appid:'com.ionicframework.mobilecare848832',appurl:"http://111.1.76.108:3005/app/app.apk"},
       {name:'办公OA',src:(localStorage.serverurl+'hospital/img/oa.jpg'),appid:'com.ionicframework.hospitaloaapp370962',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/oa.apk"},
      {name:'移动点餐',src:(localStorage.serverurl+'hospital/img/lunch.jpg'),appid:'com.test.test370962',appurl:"http://111.1.76.108:3007/app/lunch.apk"},
-      {name:'移动查房',src:(localStorage.serverurl+'hospital/img/check.jpg'),appid:'com.test.test470962',appurl:"http://111.1.76.108:3007/app/check.apk"},
+      {name:'医生查房',src:(localStorage.serverurl+'hospital/img/check.jpg'),appid:'com.hc.mhy.view',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/fsmhy.apk"},
      {name:'软件分享',src:(localStorage.serverurl+'hospital/img/barcode.jpg'),type:'barcode'}
 
   ];

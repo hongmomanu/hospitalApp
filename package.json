@@ -16,7 +16,10 @@
   },
   "cordovaPlugins": [
     "com.lampa.startapp",
-    "cordova-open"
+    "cordova-open",
+    "cordova-plugin-file-transfer",
+    "cordova-plugin-file-opener2",
+    "cordova-plugin-media"
   ],
   "cordovaPlatforms": [
     "android"
