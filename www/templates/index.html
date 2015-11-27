@@ -3,8 +3,8 @@
     <ion-header-bar align-title="left"  class="bar-dark"  >
 
           <div style="valign:middle;">
-          <img height="110px;" width="113px;" src= "img/headerlog3.png">
-              <div class="title"><a style=" font-size: x-large;">文理学院附属医院</a><br><a style="">掌上医院应用平台</a></div>
+          <img height="110px;" width="113px;" ng-src="{{headerimg}}">
+              <div class="title"><a style=" font-size: x-large;">绍兴文理学院附属医院</a><br><a style="">掌上医院应用平台</a></div>
           </div>
 
 
@@ -13,6 +13,7 @@
 
 
         <ion-content has-header="true" padding="true" scroll="true" ng-controller="mainController">
+        <!---
         <div class="row unlimited-items list">
           <a class="col item" ng-click="showapp(item)" style="text-align:center;" ng-repeat="item in items">
 
@@ -21,7 +22,23 @@
             <hr/>
 
           </a>
-        </div>
+            </div>-->
+
+        <div class="row" ng-repeat="item in items" ng-if="$index % 2 === 0">
+            <div class="col col-50" ng-click="showapp(items[$index])" style="text-align:center;" ng-if="$index < items.length">
+                <img ng-src="{{items[$index].src}}" width="100px" height="100px" />
+                <div class="bar-royal">{{items[$index].name}}</div>
+                <hr/>
+            </div>
+            <div class="col col-50" ng-click="showapp(items[$index+1])" style="text-align:center;" ng-if="$index + 1 < items.length">
+                <img ng-src="{{items[$index + 1].src}}" width="100px" height="100px" />
+                <div class="bar-royal">{{items[$index+1].name}}</div>
+                <hr/>
+            </div>
+
+       </div>
+
 </ion-content>
 
+    <div id="tipwrap">E医布舍工作室出品</div>
 </ion-view>

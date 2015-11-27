@@ -3,6 +3,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
+var hisurl="http://10.10.10.247:8081/";
 var ionicApp=angular.module('starter', ['ionic'])
 
 .run(function($ionicPlatform) {
@@ -29,13 +30,25 @@ var ionicApp=angular.module('starter', ['ionic'])
 
     .state('app', {
                 url: '/index',
-                templateUrl:'templates/index.html',
-                //templateUrl: localStorage.serverurl+'hospital/'+'templates/index.html?t='+(new Date().getTime()),
+                //templateUrl:'templates/index.html',
+                templateUrl: localStorage.serverurl+'hospital/'+'templates/index.html?t='+(new Date().getTime()),
                 controller: 'mainController'
             })
     $urlRouterProvider.otherwise('/index');
-});
-ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$ionicLoading) {
+}).factory('hisService', function($http) {
+        return {
+            checklist: function(brkh,jysj) {
+
+                return $http.get(hisurl+"mhbgjy/jybg!selectBgByKH.action",
+                    { params:{ "jybg.brkh": brkh, "jybg.jysj": jysj } }).then(function(response) {
+                            return response;
+                });
+            }
+        }
+    });
+
+
+ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$ionicLoading,hisService) {
 
   /**
   $scope.images = [
@@ -48,24 +61,56 @@ ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$i
 
   ];**/
 
-
+  $scope.headerimg=localStorage.serverurl+'hospital/img/header.png?t='+(new Date()).getTime();
    $scope.items = [
-     {name:'e医通',src:(localStorage.serverurl+'hospital/img/eapp.jpg'),appid:'com.ionicframework.eapp315343',appurl:"http://111.1.76.108:3000/files/e.apk"},
-     {name:'预约挂号',src:(localStorage.serverurl+'hospital/img/date.jpg'),appid:'com.mycompany.AffiliatedHospital',appurl:"http://111.1.76.108:3000/files/hospital.apk"},
-      {name:'移动急救',src:(localStorage.serverurl+'hospital/img/care.jpg'),appid:'com.ionicframework.mobilecare848832',appurl:"http://111.1.76.108:3005/app/app.apk"},
-      {name:'办公OA',src:(localStorage.serverurl+'hospital/img/oa.jpg'),appid:'com.ionicframework.hospitaloaapp370962',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/oa.apk"},
-     {name:'移动点餐',src:(localStorage.serverurl+'hospital/img/lunch.jpg'),appid:'com.test.test370962',appurl:"http://111.1.76.108:3007/app/lunch.apk"},
-      {name:'医生查房',src:(localStorage.serverurl+'hospital/img/check.jpg'),appid:'com.hc.mhy.view',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/fsmhy.apk"},
-     {name:'软件分享',src:(localStorage.serverurl+'hospital/img/barcode.jpg'),type:'barcode'}
+     {name:'e医通',src:(localStorage.serverurl+'hospital/img/eapp.png'),appid:'com.ionicframework.eapp315343',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/e.apk"},
+     {name:'预约挂号',src:(localStorage.serverurl+'hospital/img/date.png'),appid:'com.mycompany.AffiliatedHospital',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/affiliatedhospital.apk"},
+      {name:'移动急救',src:(localStorage.serverurl+'hospital/img/care.png'),appid:'com.ionicframework.mobilecare848832',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/mobilecare.apk"},
+      {name:'办公OA',src:(localStorage.serverurl+'hospital/img/oa.png'),appid:'com.ionicframework.hospitaloaapp370962',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/oa.apk"},
+     {name:'移动点餐',src:(localStorage.serverurl+'hospital/img/lunch.png'),appid:'com.hc.mhy.mhdc',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/fsmhdc.apk"},
+      {name:'医生查房',src:(localStorage.serverurl+'hospital/img/check.png'),appid:'com.hc.mhy.view',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/fsmhy.apk"},
+     {name:'移动护理',src:(localStorage.serverurl+'hospital/img/inurse.png'),appid:'com.hc.mhh.hl',appurl:"http://git.oschina.net/hongmomanu/iosfile/raw/master/fsmhl.apk"},
+     {name:'检验报告',src:(localStorage.serverurl+'hospital/img/checklist.jpg'),type:'checklist'},
+     {name:'体检档案',src:(localStorage.serverurl+'hospital/img/healthcheck.jpg'),type:'healthcheck'},
+     {name:'软件分享',src:(localStorage.serverurl+'hospital/img/barcode.png'),type:'barcode'}
 
   ];
 
   $scope.closebarcodemodal=function(){
-     $scope.barcodemodal.remove();
+     $scope.barcodemodal.hide();
   };
+
+  $scope.closehealthcheckmodal=function(){
+     $scope.healthcheckmodal.hide();
+  };
+
+
+  $scope.closechecklistmodal=function(){
+     $scope.checklistmodal.hide();
+  };
+
+  $scope.checklist=[];
 
   $scope.progress=0;
 
+  $scope.makedaystr=function(date){
+          var d = date;
+
+        var month = d.getMonth()+1;
+        var day = d.getDate();
+
+        var output = d.getFullYear() + '-' +
+            (month<10 ? '0' : '') + month + '-' +
+            (day<10 ? '0' : '') + day;
+           return  output;
+          };
+
+
+  $scope.todaystr=new Date();
+
+
+
+  $scope.cardnum="";
 
 
   $scope.downloadstart=function (url) {
@@ -88,6 +133,53 @@ ionicApp.controller("mainController", function($scope,$ionicPopup,$ionicModal,$i
         alert(e.name + ":" + e.message);
     }
 }
+
+$scope.doSearch=function(cardnum,todaystr){
+    console.log(cardnum);
+    console.log(todaystr);
+  if(cardnum==""){
+  $ionicPopup.alert({
+                             title: '错误!',
+                             template: '未填写卡号'
+                           });
+  return;
+  }
+
+  $ionicLoading.show({
+                    template: '加载中...'
+                });
+
+
+  hisService.checklist(cardnum,$scope.makedaystr(todaystr)).then(function (response) {
+
+    $ionicLoading.hide();
+    for(var i=0;i<response.data.length;i++){
+      var flag=true;
+      for(var j=0;j<$scope.checklist.length;j++){
+        if($scope.checklist[j].tcmc==response.data[i].tcmc){
+          $scope.checklist[j].data.push(response.data[i]);
+          flag=false;
+          break;
+
+        }
+
+      }
+      if(flag){
+        var item={tcmc:response.data[i].tcmc,data:[response.data[i]]};
+        $scope.checklist.push(item);
+      }
+
+
+
+    }
+
+
+
+  });
+
+
+
+};
 /**
  * 下載文件，
  *
@@ -212,16 +304,49 @@ $scope.downloadFile=function (storefilepath, downloadfileurl) {
 
     if(item.type=='barcode'){
 
-      $ionicModal.fromTemplateUrl(localStorage.serverurl+'hospital/templates/barcodemodal.html' , {
+      if(!$scope.barcodemodal){
+          $ionicModal.fromTemplateUrl(localStorage.serverurl+'hospital/templates/barcodemodal.html' , {
           scope: $scope
       }).then(function(modal) {
               $scope.barcodemodal = modal;
               $scope.barcodemodal.show();
-              $("#scanbarcode").qrcode({text:localStorage.serverurl+'hospital/app.apk',width:200,height:200});
+
+              $("#scanbarcode").qrcode({text:localStorage.serverurl+'hospital/hospital.html',width:200,height:200});
+      });
+      }else{
+        $scope.barcodemodal.show();
+
+      }
+
+
+
+    }else if (item.type=='checklist'){
+
+       $ionicModal.fromTemplateUrl(localStorage.serverurl+'hospital/templates/checklistmodal.html' , {
+      //$ionicModal.fromTemplateUrl('templates/checklistmodal.html' , {
+        scope: $scope
+      }).then(function(modal) {
+              $scope.checklistmodal = modal;
+              $scope.checklistmodal.show();
+
       });
 
 
-    }else{
+    }else if (item.type=='healthcheck'){
+
+       $ionicModal.fromTemplateUrl(localStorage.serverurl+'hospital/templates/healthcheck.html' , {
+      //$ionicModal.fromTemplateUrl('templates/checklistmodal.html' , {
+        scope: $scope
+      }).then(function(modal) {
+              $scope.healthcheckmodal = modal;
+              $scope.healthcheckmodal.show();
+
+      });
+
+
+    }
+
+    else{
     navigator.startApp.check(item.appid, function(message) { /* success */
 
       navigator.startApp.start(item.appid, function(message) {  /* success */
